@@ -1,0 +1,27 @@
+{
+  "name": "konfigai-resume-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Resume matching + tailoring agents for KonfigAI Resume Bot",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "demo:match": "node scripts/demo-match.js",
+    "demo:match:file": "node scripts/demo-match-file.js",
+    "match:db": "node scripts/run-db-match-caller.js",
+    "match:daily": "node scripts/run-daily-match-batch.js",
+    "smoke:match": "node scripts/smoke-check-matching-service.js",
+    "validate:matching-fixtures": "node scripts/validate-matching-fixtures.js",
+    "export:matching-handoff": "bash docs/matching-agent-handoff/export-handoff.sh --with-sources",
+    "export:matching-handoff:docs": "bash docs/matching-agent-handoff/export-handoff.sh",
+    "serve": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mammoth": "^1.7.2",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.20.0"
+  }
+}

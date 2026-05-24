@@ -1,0 +1,104 @@
+{
+  "description": "Canonical source files that implement resume-job matching. SHA-256 verifies byte-identical restores (regenerate hashes after edits).",
+  "generated_note": "Commit this manifest when tagging a matching-agent release baseline.",
+  "repository_root": ".",
+  "files": [
+    {
+      "path": "backend/services/matching_integration.py",
+      "sha256": "ba2cd2ae7e6719294119ae33a1ff80d6f05bbfaff400a52edb4b84cc2955c489",
+      "role": "Python: load candidate + jobs from DB, render resume text, POST matcher HTTP, read candidate_match_*"
+    },
+    {
+      "path": "backend/services/matching_automation.py",
+      "sha256": "732a58762701f51dc02a363dc8f6daa5d938e37a3beb496401781f4a7bee2006",
+      "role": "Python: subprocess node scripts/run-daily-match-batch.js, daily scheduler thread"
+    },
+    {
+      "path": "backend/app/routers/candidates.py",
+      "sha256": "b299e8a4b7828e1deb036e38020e03b6360980070e82a6111111d5a53036da99",
+      "role": "FastAPI: GET/POST candidates/{id}/matches endpoints"
+    },
+    {
+      "path": "backend/services/scheduler/service.py",
+      "sha256": "5708be821e1319a1db979325143c778f44e33f06b11fe33089523bbe02a6f3d4",
+      "role": "Python: lifespan start_matching_scheduler() alongside APScheduler"
+    },
+    {
+      "path": "backend/cli.py",
+      "sha256": "7dfdd144cbf0dbe56d33eaa75a262d92b80c9dfb52e3922977549b080fa1322c",
+      "role": "Python: run_all() background thread also calls start_matching_scheduler()"
+    },
+    {
+      "path": "src/server.js",
+      "sha256": "9a862744586f8941ef8561c27e7d3717971bd27db5e13bf9dfd978c1d1cdc513",
+      "role": "Node: HTTP server /match/jobs, /match/jobs/upload, health, persistence + tailoring orchestration"
+    },
+    {
+      "path": "src/agents/matchingAgent.js",
+      "sha256": "49213d79275d3b34cefc00fec993df28e054c9ed5db657af2cfc9933e2fd375f",
+      "role": "Node: normalize jobs, queue concurrency, spawn vector_rank_jobs.py, ATS merge into ranked jobs"
+    },
+    {
+      "path": "src/agents/atsCore.js",
+      "sha256": "e74f26b5905d14f56e15dc61a98af52772bf85babf1684a61c7f57896711a3cb",
+      "role": "Node: requirement extraction + evaluation helpers used by matchingAgent"
+    },
+    {
+      "path": "src/agents/jobPosting.js",
+      "sha256": "599b7c3f916ee7b1b8bf236d9d73b96dfcf21c9833705dfc1609ff3f98930206",
+      "role": "Node: JD normalization helpers"
+    },
+    {
+      "path": "src/db/postgres.js",
+      "sha256": "a561cd5311a139baca1c3fbd4ea5523bbfdf874519f2cf221596a40c45ddd035",
+      "role": "Node: pg pool, optional DDL auto-setup, persistMatchRun, tailoring status columns"
+    },
+    {
+      "path": "src/io/extractText.js",
+      "sha256": "3590f734d9a3b40035d06968050c50f2d4635d0575c4928fc8386a07239261f3",
+      "role": "Node: extract text from uploads for /match/jobs/upload"
+    },
+    {
+      "path": "src/integrations/tailoringClient.js",
+      "sha256": "321bf2765bfe535ab272756c2b7b89459731b10da5f4d3248032331a80662803",
+      "role": "Node: optional HTTP tailoring after match"
+    },
+    {
+      "path": "src/openapi.js",
+      "sha256": "54c2797ba093365283cdce3663d2b17079bcfeeadf006fb0dd4038db1e7253cc",
+      "role": "Node: embedded OpenAPI document"
+    },
+    {
+      "path": "src/index.js",
+      "sha256": "56e41ab63e531b95df8a6592c89c6cf8d53f62505f19627b4cfd9510305633bc",
+      "role": "Node: barrel export for smoke/tests"
+    },
+    {
+      "path": "scripts/vector_rank_jobs.py",
+      "sha256": "1bf048598143ed8accd8924b975e7cf3c3c34c86a71e142c55735f1503ea36c3",
+      "role": "Python subprocess: pgvector retrieval + hybrid rank (invoked by matchingAgent.js)"
+    },
+    {
+      "path": "scripts/run-db-match-caller.js",
+      "sha256": "618dfb7bac8c31ebd3ac8b7cb06e07c1af7ff882032eaadde94d1524ea8d0b2b",
+      "role": "Node: shared DB batch caller for matcher URL"
+    },
+    {
+      "path": "scripts/run-daily-match-batch.js",
+      "sha256": "cbab06e0582b9198ee039db5ff17e2efa3b39099040a754a05d0c3f005915449",
+      "role": "Node: daily batch entrypoint (invoked by matching_automation.py)"
+    }
+  ],
+  "companion_docs": [
+    "docs/matching-agent-implementation-spec.svg",
+    "docs/matching-agent-implementation-spec-visual.svg",
+    "docs/matching-agent-platform-architecture.svg",
+    "docs/matching-agent-platform-architecture-visual.svg",
+    "docs/matching-agent-architecture.svg",
+    "docs/matching-agent-architecture-visual.svg",
+    "docs/matching-agent-behavioral-appendix.md",
+    "docs/fixtures/matching/README.md",
+    "docs/matching-agent-handoff/implementation-constraints.md",
+    "docs/matching-agent-handoff/BUNDLE_README.md"
+  ]
+}

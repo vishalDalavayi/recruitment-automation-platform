@@ -1,0 +1,17 @@
+{
+  "source_table": "active_scraped_data",
+  "serial_no": 42,
+  "url": "https://jobs.example/1",
+  "title": "Python Dev",
+  "company": "Co",
+  "location": "Remote",
+  "salary": "100k",
+  "posted_date": "2026-01-01",
+  "job_type": "Contract",
+  "workplace_type": "Remote",
+  "description": "Do Python.",
+  "skills": null,
+  "experience_required": null,
+  "keyword": null,
+  "scraped_at": null
+}

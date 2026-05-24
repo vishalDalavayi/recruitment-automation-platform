@@ -1,0 +1,29 @@
+[
+  {
+    "id": "backend-job-1",
+    "title": "Senior Backend Engineer",
+    "company_name": "Acme Cloud",
+    "location": "Remote",
+    "source": "linkedin",
+    "url": "https://example.com/backend-job-1",
+    "description_text": "Required: Node.js, JavaScript/TypeScript, REST APIs, AWS. Preferred: Docker, PostgreSQL. 5+ years experience building backend services."
+  },
+  {
+    "id": "data-job-1",
+    "title": "Data Engineer",
+    "company_name": "DataCo",
+    "location": "Remote",
+    "source": "indeed",
+    "url": "https://example.com/data-job-1",
+    "description_text": "Required: Python, Spark, Airflow, Snowflake, SQL. Preferred: dbt, AWS. 4+ years data engineering experience."
+  },
+  {
+    "id": "frontend-job-1",
+    "title": "Frontend Engineer",
+    "company_name": "Pixel Labs",
+    "location": "New York, NY",
+    "source": "dice",
+    "url": "https://example.com/frontend-job-1",
+    "description_html": "<div><p>Required:</p><ul><li>React</li><li>TypeScript</li><li>JavaScript</li></ul><p>Preferred:</p><ul><li>GraphQL</li></ul></div>"
+  }
+]

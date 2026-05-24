@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="540" viewBox="0 0 1760 540" role="img">
+  <title>Matcher pipeline visual</title>
+  <defs>
+    <marker id="mh" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M0,0 L14,7 L0,14 z" fill="#314559"/></marker>
+    <filter id="sh" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter>
+    <style>
+      .t { font-family: Arial, Helvetica, sans-serif; fill: #0f2336; }
+      .h { font: 700 26px Arial; }
+      .sub { font: 14px Arial; fill: #456; }
+      .bx { filter: url(#sh); rx: 18; ry: 18; stroke-width: 2; }
+      .lbl { font: 700 15px Arial; fill: #142a42; }
+      .cap { font: 12px Menlo, monospace; fill: #1e4976; }
+      .arr { stroke: #314559; stroke-width: 4; fill: none; marker-end: url(#mh); }
+      .arrlbl { font: 700 11px Arial; fill: #567; }
+    </style>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#dfe9f7"/><stop offset="100%" stop-color="#eef3f9"/></linearGradient>
+  </defs>
+  <rect fill="url(#sky)" width="1760" height="540"/>
+
+  <text class="t h" x="48" y="52">Visual: Matcher pipeline (inside Node service)</text>
+  <text class="t sub" x="48" y="82">Companion to matching-agent-architecture.svg - single left-to-right flow.</text>
+
+  <!-- Pipeline boxes -->
+  <g transform="translate(40, 130)">
+    <rect class="bx" fill="#e3f2ff" stroke="#4a8fd9" width="130" height="100"/>
+    <text class="lbl" x="42" y="42">Resume</text>
+    <text class="cap" x="22" y="68">text / upload</text>
+
+    <line class="arr" x1="130" y1="50" x2="175" y2="50"/>
+    <text class="arrlbl" x="132" y="42">+</text>
+
+    <rect class="bx" fill="#e3f2ff" stroke="#4a8fd9" x="175" width="130" height="100"/>
+    <text class="lbl" x="208" y="42">Jobs[]</text>
+    <text class="cap" x="197" y="68">scraped JDs</text>
+
+    <line class="arr" x1="305" y1="50" x2="360" y2="50"/>
+
+    <rect class="bx" fill="#ffffff" stroke="#7a8fa3" x="360" width="155" height="100"/>
+    <text class="lbl" x="395" y="38">server.js</text>
+    <text class="cap" x="378" y="62">/match/jobs</text>
+    <text class="cap" x="378" y="82">persist?</text>
+
+    <line class="arr" x1="515" y1="50" x2="572" y2="50"/>
+
+    <rect class="bx" fill="#ffffff" stroke="#8b6ccf" x="572" width="175" height="100"/>
+    <text class="lbl" x="612" y="38">matchingAgent</text>
+    <text class="cap" x="594" y="62">normalize</text>
+    <text class="cap" x="594" y="82">queue</text>
+
+    <line class="arr" x1="747" y1="50" x2="805" y2="50"/>
+
+    <rect class="bx" fill="#f5eeff" stroke="#7559b8" x="805" width="185" height="100"/>
+    <text class="lbl" x="838" y="38">vector_rank</text>
+    <text class="lbl" x="848" y="56">jobs.py</text>
+    <text class="cap" x="824" y="82">pgvector top-N</text>
+
+    <line class="arr" x1="990" y1="50" x2="1048" y2="50"/>
+
+    <rect class="bx" fill="#eefaf1" stroke="#4caf6a" x="1048" width="145" height="100"/>
+    <text class="lbl" x="1088" y="38">ATS merge</text>
+    <text class="cap" x="1072" y="62">atsCore.js</text>
+    <text class="cap" x="1072" y="82">scores</text>
+
+    <line class="arr" x1="1193" y1="50" x2="1252" y2="50"/>
+
+    <rect class="bx" fill="#ecfdf5" stroke="#3d9e5c" x="1252" width="155" height="100"/>
+    <text class="lbl" x="1288" y="38">Persist</text>
+    <text class="cap" x="1274" y="62">postgres.js</text>
+    <text class="cap" x="1268" y="82">match_* rows</text>
+
+    <line class="arr" x1="1407" y1="50" x2="1465" y2="50"/>
+
+    <rect class="bx" fill="#fff8e6" stroke="#d9a441" x="1465" width="155" height="100"/>
+    <text class="lbl" x="1505" y="42">Tailoring</text>
+    <text class="cap" x="1488" y="72">optional</text>
+
+    <line class="arr" x1="1620" y1="50" x2="1678" y2="50"/>
+
+    <rect class="bx" fill="#e8f4ff" stroke="#4a8fd9" x="1678" width="142" height="100"/>
+    <text class="lbl" x="1712" y="42">JSON</text>
+    <text class="cap" x="1698" y="72">response</text>
+  </g>
+
+  <!-- Vertical spine: pgvector -->
+  <line stroke="#5cb878" stroke-width="3" stroke-dasharray="10 6" x1="970" y1="248" x2="970" y2="355"/>
+  <rect fill="#ecfdf5" stroke="#5cb878" rx="10" ry="10" x="900" y="355" width="140" height="56"/>
+  <text class="lbl" x="932" y="380">PG</text>
+  <text class="cap" x="918" y="398">embeddings</text>
+  <text class="cap" style="font-size:10px" x="895" y="430">job_vector_embeddings table</text>
+
+  <text class="t sub" x="48" y="468">Sections 2-3 in matching-agent-architecture.svg explain pgvector steps and outputs in prose.</text>
+</svg>

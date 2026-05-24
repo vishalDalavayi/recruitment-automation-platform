@@ -1,0 +1,18 @@
+{
+  "Name": "Alex Dev",
+  "Email": "alex@example.com",
+  "Phone": "555-0100",
+  "Summary": "Backend engineer focusing on APIs.",
+  "Technical_Skills": {
+    "Languages": ["Python", "SQL"],
+    "Cloud": ["AWS"]
+  },
+  "Professional_Experience": [
+    {
+      "title": "Engineer",
+      "Company": "Acme Corp",
+      "project_description": "Built services.",
+      "Responsibilities": ["Designed APIs"]
+    }
+  ]
+}

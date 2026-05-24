@@ -1,0 +1,10 @@
+{
+  "resumeId": "candidate-uuid-example",
+  "candidateName": "Alex Dev",
+  "resumeVersion": "formatted_resume_content",
+  "resumeText": "Paste output of render_formatted_resume_content(...) here for real calls.",
+  "jobs": [],
+  "topK": 5,
+  "vectorTopN": 100,
+  "persist": true
+}

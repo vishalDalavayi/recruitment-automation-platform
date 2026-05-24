@@ -1,0 +1,17 @@
+SUMMARY:
+Data engineer with 5 years building ETL pipelines and analytics platforms using Python and Spark.
+
+ACADEMICS:
+Master of Science in Information Systems
+
+TECHNICAL SKILLS:
+Python, Spark, Airflow, Snowflake, SQL, dbt, AWS
+
+PROFESSIONAL EXPERIENCE:
+Developed batch and streaming pipelines, orchestrated workflows, and supported warehouse analytics.
+
+RESPONSIBILITIES:
+Built ingestion jobs, modeled data, maintained Airflow DAGs, and tuned warehouse performance.
+
+ENVIRONMENT:
+Python, Spark, Airflow, Snowflake, SQL, dbt

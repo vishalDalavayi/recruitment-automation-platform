@@ -1,0 +1,11 @@
+{
+    "date_range": "24h",
+    "date_range_label": "Today",
+    "max_search_pages": 30,
+    "max_workers": 3,
+    "request_timeout": 30,
+    "scrape_cooldown": 300,
+    "schedule_enabled": true,
+    "schedule_time": "08:30",
+    "cleaner_schedule_time": "06:40"
+}

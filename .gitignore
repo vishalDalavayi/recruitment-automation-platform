@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.venv-*/
+venv*/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Environment & secrets — never commit real values
+.env
+**/.env
+.env.*
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Credential / key files
+*.pem
+*.p12
+*.key
+credentials.json
+secrets.json
+*-credentials.json
+service-account*.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+.chroma/
+.chroma-test/
+.hf-cache/
+.pycache-temp/
+.pycache/
+.pycache-tmp/
+tmp_resume_bot_pre_pgvector.sql
+
+# Agent handoff export output (often local staging before zip)
+docs/matching-agent-handoff/bundle/
+docs/matching-agent-handoff/matching-agent-handoff.zip

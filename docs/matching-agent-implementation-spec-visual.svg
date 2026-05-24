@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="920" viewBox="0 0 1680 920" role="img">
+  <title>Implementation spec visual</title>
+  <defs>
+    <marker id="pah" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#2d5a87"/></marker>
+    <style>
+      .bg { fill: #eef2f8; }
+      .t { font-family: Arial, Helvetica, sans-serif; }
+      .h { font: 700 24px Arial; fill: #0f2336; }
+      .sub { font: 13px Arial; fill: #456; }
+      .ph { font: 700 16px Arial; fill: #fff; }
+      .pd { font: 12px Arial; fill: #eef6ff; }
+      .fm { font: 11px Menlo, monospace; fill: #cfe8ff; }
+      .note { font: 12px Arial; fill: #345; }
+      .arr { stroke: #2d5a87; stroke-width: 3; fill: none; marker-end: url(#pah); }
+    </style>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2d6bcc"/><stop offset="100%" stop-color="#1e4a8c"/>
+    </linearGradient>
+  </defs>
+  <rect class="bg" width="1680" height="920"/>
+  <text class="t h" x="48" y="48">Visual: Greenfield implementation phases</text>
+  <text class="t sub" x="48" y="76">Companion to matching-agent-implementation-spec.svg  build order left to right.</text>
+
+  <!-- Phase boxes -->
+  <rect fill="url(#g1)" stroke="#163d66" rx="16" ry="16" x="48" y="118" width="200" height="120"/>
+  <text class="t ph" x="108" y="158">1</text>
+  <text class="t pd" x="68" y="182">Node matcher</text>
+  <text class="t fm" x="68" y="204">server.js + agent</text>
+  <text class="t fm" x="68" y="222">vector_rank_jobs.py</text>
+
+  <line class="arr" x1="248" y1="178" x2="298" y2="178"/>
+
+  <rect fill="url(#g1)" stroke="#163d66" rx="16" ry="16" x="298" y="118" width="220" height="120"/>
+  <text class="t ph" x="378" y="158">2</text>
+  <text class="t pd" x="318" y="182">postgres.js</text>
+  <text class="t fm" x="318" y="204">persistMatchRun</text>
+  <text class="t fm" x="318" y="222">candidate_match_*</text>
+
+  <line class="arr" x1="518" y1="178" x2="568" y2="178"/>
+
+  <rect fill="url(#g1)" stroke="#163d66" rx="16" ry="16" x="568" y="118" width="240" height="120"/>
+  <text class="t ph" x="662" y="158">3</text>
+  <text class="t pd" x="588" y="182">matching_integration</text>
+  <text class="t fm" x="588" y="204">DB jobs + resume text</text>
+  <text class="t fm" x="588" y="222">httpx -&gt; matcher URL</text>
+
+  <line class="arr" x1="808" y1="178" x2="858" y2="178"/>
+
+  <rect fill="url(#g1)" stroke="#163d66" rx="16" ry="16" x="858" y="118" width="210" height="120"/>
+  <text class="t ph" x="936" y="158">4</text>
+  <text class="t pd" x="878" y="182">FastAPI routes</text>
+  <text class="t fm" x="878" y="204">GET/POST &/matches</text>
+  <text class="t fm" x="878" y="222">candidates.py</text>
+
+  <line class="arr" x1="1068" y1="178" x2="1118" y2="178"/>
+
+  <rect fill="url(#g1)" stroke="#163d66" rx="16" ry="16" x="1118" y="118" width="240" height="120"/>
+  <text class="t ph" x="1212" y="158">5</text>
+  <text class="t pd" x="1138" y="182">Batch scripts</text>
+  <text class="t fm" x="1138" y="204">run-daily-match-batch</text>
+  <text class="t fm" x="1138" y="222">run-db-match-caller.js</text>
+
+  <line class="arr" x1="1358" y1="178" x2="1408" y2="178"/>
+
+  <rect fill="#5a6578" stroke="#3d4656" rx="16" ry="16" x="1408" y="118" width="224" height="120"/>
+  <text class="t ph" x="1488" y="158">6</text>
+  <text class="t pd" x="1428" y="182">Scheduler wire</text>
+  <text class="t fm" x="1428" y="204">scheduler/service.py</text>
+  <text class="t fm" x="1428" y="222">cli.py + start_matching_scheduler</text>
+
+  <!-- Topology mini -->
+  <rect fill="#fff" stroke="#94a8c4" rx="14" ry="14" x="48" y="280" width="1584" height="200"/>
+  <text class="t h" style="font-size:17px" x="68" y="312">Runtime topology (two processes)</text>
+  <rect fill="#e8f4ff" stroke="#4a90d9" rx="10" ry="10" x="100" y="340" width="140" height="110"/><text class="t note" style="font-weight:700" x="125" y="378">uvicorn</text><text class="t fm" style="fill:#1a5080" x="118" y="402">FastAPI</text><text class="t fm" style="fill:#1a5080" x="118" y="420">matching_*</text>
+  <text class="t note" x="265" y="400" style="font-size:28px">&#8594;</text>
+  <rect fill="#ede8ff" stroke="#8068c9" rx="10" ry="10" x="320" y="340" width="140" height="110"/><text class="t note" style="font-weight:700" x="355" y="378">HTTP</text><text class="t fm" style="fill:#1a5080" x="338" y="402">POST JSON</text><text class="t fm" style="fill:#1a5080" x="338" y="420">:5051/match/jobs</text>
+  <text class="t note" x="485" y="400" style="font-size:28px">&#8594;</text>
+  <rect fill="#f2ecff" stroke="#8068c9" rx="10" ry="10" x="540" y="340" width="160" height="110"/><text class="t note" style="font-weight:700" x="585" y="378">node</text><text class="t fm" style="fill:#1a5080" x="558" y="402">server.js</text><text class="t fm" style="fill:#1a5080" x="558" y="420">child: Python</text>
+  <text class="t note" x="725" y="400" style="font-size:28px">&#8594;</text>
+  <rect fill="#ecfdf5" stroke="#5cb878" rx="10" ry="10" x="780" y="340" width="160" height="110"/><text class="t note" style="font-weight:700" x="815" y="378">Postgres</text><text class="t fm" style="fill:#1a5080" x="798" y="402">scraped jobs</text><text class="t fm" style="fill:#1a5080" x="798" y="420">candidate_match_*</text>
+  <rect fill="#fff8ec" stroke="#d9a441" rx="10" ry="10" x="1000" y="340" width="580" height="110"/>
+  <text class="t note" style="font-weight:700" x="1020" y="378">Optional third thread</text>
+  <text class="t fm" style="fill:#1a5080" x="1020" y="402">matching_automation.py polls clock, runs node scripts/run-daily-match-batch.js (same MATCHER URL).</text>
+
+  <!-- Contract strip -->
+  <rect fill="#fff" stroke="#94a8c4" rx="14" ry="14" x="48" y="508" width="1584" height="168"/>
+  <text class="t h" style="font-size:17px" x="68" y="542">Contracts at a glance</text>
+  <rect fill="#f0f7ff" stroke="#6b93d6" rx="8" ry="8" x="68" y="558" width="480" height="100"/>
+  <text class="t note" style="font-weight:700" x="88" y="586">POST /match/jobs</text>
+  <text class="t fm" style="fill:#153450;font-size:10px" x="88" y="608">jobs[], resumeText | resumeFile, topK, vectorTopN, persist,</text>
+  <text class="t fm" style="fill:#153450;font-size:10px" x="88" y="624">resumeId, candidateName, resumeVersion (+ optional tailoring keys)</text>
+  <rect fill="#f0fff4" stroke="#5cb878" rx="8" ry="8" x="572" y="558" width="500" height="100"/>
+  <text class="t note" style="font-weight:700" x="592" y="586">Python gate</text>
+  <text class="t fm" style="fill:#153450;font-size:11px" x="592" y="612">formatted_resume_status == &quot;completed&quot; before run_candidate_matching</text>
+  <text class="t fm" style="fill:#153450;font-size:11px" x="592" y="630">MATCH_*_TABLE names aligned between Node persistence and Python reads</text>
+  <rect fill="#fffaf0" stroke="#d9a441" rx="8" ry="8" x="1096" y="558" width="516" height="100"/>
+  <text class="t note" style="font-weight:700" x="1116" y="586">Verify</text>
+  <text class="t fm" style="fill:#153450;font-size:11px" x="1116" y="612">GET Node /health | POST sample match | GET FastAPI &/matches returns persisted ranks</text>
+
+  <text class="t note" x="48" y="718">Full prose, env list, file manifest: matching-agent-implementation-spec.svg</text>
+
+  <!-- Tiny checklist icons -->
+  <rect fill="#fff" stroke="#bbb" rx="10" ry="10" x="48" y="738" width="1584" height="158"/>
+  <text class="t h" style="font-size:17px" x="68" y="772">Parallel tracks after phase 1</text>
+  <text class="t note" x="88" y="804">Track A (interactive): phases 3&#8594;4 expose REST on top of running Node matcher.</text>
+  <text class="t note" x="88" y="828">Track B (offline bulk): phases 5&#8594;6 call same HTTP endpoint from scripts/run-db-match-caller.js.</text>
+  <text class="t note" x="88" y="852">Track C (optional): tailoringClient.js when TAILORING_URL set.</text>
+  <text class="t note" x="88" y="876">Phase 2 persistence must succeed before GET &/matches shows stored rows.</text>
+</svg>

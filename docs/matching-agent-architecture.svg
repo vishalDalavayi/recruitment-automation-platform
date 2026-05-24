@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Matching Agent Architecture</title>
+  <desc id="desc">Visual architecture and workflow diagram for the KonfigAI Resume Bot matching agent.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f4f7fb; }
+      .panel { fill: #ffffff; stroke: #d6dfeb; stroke-width: 2; rx: 24; ry: 24; }
+      .card { fill: #ffffff; stroke: #8aa4c6; stroke-width: 2; rx: 18; ry: 18; }
+      .card-blue { fill: #eef5ff; stroke: #5a8fd8; stroke-width: 2; rx: 18; ry: 18; }
+      .card-green { fill: #eefaf1; stroke: #5d9b6b; stroke-width: 2; rx: 18; ry: 18; }
+      .card-amber { fill: #fff7e8; stroke: #c9952e; stroke-width: 2; rx: 18; ry: 18; }
+      .card-purple { fill: #f5f0ff; stroke: #8b6ccf; stroke-width: 2; rx: 18; ry: 18; }
+      .title { font: 700 32px Arial, Helvetica, sans-serif; fill: #17324d; }
+      .subtitle { font: 600 18px Arial, Helvetica, sans-serif; fill: #4e6782; }
+      .section { font: 700 22px Arial, Helvetica, sans-serif; fill: #17324d; }
+      .label { font: 700 18px Arial, Helvetica, sans-serif; fill: #17324d; }
+      .body { font: 15px Arial, Helvetica, sans-serif; fill: #35506b; }
+      .small { font: 13px Arial, Helvetica, sans-serif; fill: #5a7188; }
+      .arrow { stroke: #5d7592; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+      .arrow-soft { stroke: #8aa4c6; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+      .divider { stroke: #d6dfeb; stroke-width: 2; }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#5d7592"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1120"/>
+
+  <text class="title" x="70" y="70">KonfigAI Resume Bot: Matching Agent Architecture</text>
+  <text class="subtitle" x="70" y="102">Resume input + candidate jobs -> pgvector retrieval -> hybrid scoring -> Postgres persistence -> tailoring handoff</text>
+
+  <rect class="panel" x="50" y="140" width="1500" height="420"/>
+  <text class="section" x="80" y="185">1. End-to-End Workflow</text>
+
+  <rect class="card-blue" x="90" y="235" width="210" height="110"/>
+  <text class="label" x="120" y="275">Resume Input</text>
+  <text class="body" x="120" y="304">Formatted resume text</text>
+  <text class="body" x="120" y="326">or uploaded PDF/DOCX</text>
+
+  <rect class="card-blue" x="90" y="390" width="210" height="110"/>
+  <text class="label" x="120" y="430">Job Input</text>
+  <text class="body" x="120" y="459">Scraped jobs from</text>
+  <text class="body" x="120" y="481">caller or DB batch</text>
+
+  <rect class="card" x="375" y="235" width="250" height="265"/>
+  <text class="label" x="410" y="275">Node HTTP Service</text>
+  <text class="small" x="410" y="302">src/server.js</text>
+  <text class="body" x="410" y="340">- accepts /match/jobs</text>
+  <text class="body" x="410" y="364">- accepts /match/jobs/upload</text>
+  <text class="body" x="410" y="388">- parses JSON / multipart</text>
+  <text class="body" x="410" y="412">- extracts resume text if needed</text>
+  <text class="body" x="410" y="436">- passes clean payload to matcher</text>
+
+  <rect class="card" x="705" y="235" width="280" height="265"/>
+  <text class="label" x="740" y="275">Matching Orchestrator</text>
+  <text class="small" x="740" y="302">src/agents/matchingAgent.js</text>
+  <text class="body" x="740" y="340">- normalizes jobs</text>
+  <text class="body" x="740" y="364">- builds JD requirements</text>
+  <text class="body" x="740" y="388">- builds resume profile signals</text>
+  <text class="body" x="740" y="412">- spawns Python vector worker</text>
+  <text class="body" x="740" y="436">- shapes ranked output</text>
+
+  <rect class="card-purple" x="1060" y="235" width="250" height="120"/>
+  <text class="label" x="1095" y="275">Python Vector Worker</text>
+  <text class="small" x="1095" y="302">scripts/vector_rank_jobs.py</text>
+  <text class="body" x="1095" y="330">Embeddings + retrieval + scoring</text>
+
+  <rect class="card-green" x="1060" y="395" width="250" height="105"/>
+  <text class="label" x="1095" y="433">pgvector Store</text>
+  <text class="small" x="1095" y="460">candidate_details.job_vector_embeddings</text>
+  <text class="body" x="1095" y="486">Stores and queries job embeddings</text>
+
+  <rect class="card-amber" x="1375" y="235" width="135" height="120"/>
+  <text class="label" x="1402" y="275">Hybrid Rank</text>
+  <text class="body" x="1398" y="306">60% keyword</text>
+  <text class="body" x="1398" y="328">40% TF-IDF</text>
+
+  <rect class="card-green" x="1375" y="395" width="135" height="105"/>
+  <text class="label" x="1400" y="433">Persist</text>
+  <text class="body" x="1395" y="460">match runs,</text>
+  <text class="body" x="1395" y="482">results, jobs</text>
+
+  <line class="arrow" x1="300" y1="290" x2="375" y2="290"/>
+  <line class="arrow" x1="300" y1="445" x2="375" y2="445"/>
+  <line class="arrow" x1="625" y1="365" x2="705" y2="365"/>
+  <line class="arrow" x1="985" y1="295" x2="1060" y2="295"/>
+  <line class="arrow" x1="1185" y1="355" x2="1185" y2="395"/>
+  <line class="arrow" x1="1310" y1="295" x2="1375" y2="295"/>
+  <line class="arrow" x1="1442" y1="355" x2="1442" y2="395"/>
+
+  <rect class="panel" x="50" y="595" width="1500" height="205"/>
+  <text class="section" x="80" y="640">2. What pgvector Is Doing</text>
+
+  <rect class="card-green" x="95" y="675" width="300" height="85"/>
+  <text class="label" x="125" y="710">Step A: Embed the Resume</text>
+  <text class="body" x="125" y="736">Create a vector for the incoming resume text.</text>
+
+  <rect class="card-green" x="465" y="675" width="300" height="85"/>
+  <text class="label" x="495" y="710">Step B: Upsert Job Embeddings</text>
+  <text class="body" x="495" y="736">Refresh job vectors in Postgres when needed.</text>
+
+  <rect class="card-green" x="835" y="675" width="300" height="85"/>
+  <text class="label" x="865" y="710">Step C: Retrieve Top-N Jobs</text>
+  <text class="body" x="865" y="736">Use pgvector similarity to shortlist likely jobs.</text>
+
+  <rect class="card-amber" x="1205" y="675" width="300" height="85"/>
+  <text class="label" x="1235" y="710">Step D: Final Score on Shortlist</text>
+  <text class="body" x="1235" y="736">Apply deterministic hybrid ranking to retrieved jobs.</text>
+
+  <line class="arrow" x1="395" y1="717" x2="465" y2="717"/>
+  <line class="arrow" x1="765" y1="717" x2="835" y2="717"/>
+  <line class="arrow" x1="1135" y1="717" x2="1205" y2="717"/>
+
+  <rect class="panel" x="50" y="835" width="1500" height="235"/>
+  <text class="section" x="80" y="880">3. Outputs and Storage</text>
+
+  <rect class="card" x="95" y="920" width="310" height="110"/>
+  <text class="label" x="125" y="958">API Response</text>
+  <text class="body" x="125" y="985">- ranked jobs</text>
+  <text class="body" x="125" y="1007">- scores and breakdown</text>
+
+  <rect class="card-green" x="470" y="920" width="390" height="110"/>
+  <text class="label" x="500" y="958">Postgres Persistence</text>
+  <text class="body" x="500" y="985">candidate_match_resumes</text>
+  <text class="body" x="500" y="1007">candidate_match_jobs, candidate_match_runs, candidate_match_results</text>
+
+  <rect class="card-purple" x="925" y="920" width="270" height="110"/>
+  <text class="label" x="955" y="958">Tailoring Handoff</text>
+  <text class="body" x="955" y="985">Top matches can be sent to</text>
+  <text class="body" x="955" y="1007">the tailoring agent next</text>
+
+  <rect class="card-blue" x="1260" y="920" width="250" height="110"/>
+  <text class="label" x="1290" y="958">Mental Model</text>
+  <text class="body" x="1290" y="985">Resume + jobs in,</text>
+  <text class="body" x="1290" y="1007">pgvector shortlist out,</text>
+  <text class="body" x="1290" y="1029">hybrid ranked matches back</text>
+
+  <line class="arrow-soft" x1="405" y1="975" x2="470" y2="975"/>
+  <line class="arrow-soft" x1="860" y1="975" x2="925" y2="975"/>
+  <line class="arrow-soft" x1="1195" y1="975" x2="1260" y2="975"/>
+  <text class="small" x="70" y="1098">Pipeline-only visual: matching-agent-architecture-visual.svg</text>
+</svg>

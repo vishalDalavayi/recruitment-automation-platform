@@ -1,0 +1,16 @@
+[
+  {
+    "id": "active_scraped_data:42",
+    "source_job_ref": "42",
+    "source_table": "active_scraped_data",
+    "source": "active_scraped_data",
+    "title": "Python Dev",
+    "company_name": "Co",
+    "location": "Remote",
+    "url": "https://jobs.example/1",
+    "job_type": "Contract",
+    "salary": "100k",
+    "publication_date": "2026-01-01",
+    "description_text": "Do Python."
+  }
+]

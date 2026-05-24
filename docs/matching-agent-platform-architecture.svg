@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1280" viewBox="0 0 1760 1280" role="img" aria-labelledby="title desc">
+  <title id="title">Matching Agent - Full Platform Architecture</title>
+  <desc id="desc">Diagram showing existing KonfigAI Resume Bot components, FastAPI integration, Node matcher service, PostgreSQL tables, and scheduled batch matching with primary source files labeled.</desc>
+  <defs>
+    <style>
+      .bg { fill: #eef2f8; }
+      .panel { fill: #ffffff; stroke: #c5d4e8; stroke-width: 2; rx: 16; ry: 16; }
+      .panel-muted { fill: #f8fafc; stroke: #c5d4e8; stroke-width: 2; rx: 16; ry: 16; }
+      .panel-green { fill: #f2faf4; stroke: #8cbf96; stroke-width: 2; rx: 16; ry: 16; }
+      .panel-blue { fill: #f3f7ff; stroke: #7aa3e8; stroke-width: 2; rx: 16; ry: 16; }
+      .panel-amber { fill: #fffbf2; stroke: #deb866; stroke-width: 2; rx: 16; ry: 16; }
+      .panel-purple { fill: #f8f5ff; stroke: #a894d6; stroke-width: 2; rx: 16; ry: 16; }
+      .card { fill: #ffffff; stroke: #8aa4c6; stroke-width: 1.8; rx: 12; ry: 12; }
+      .title { font: 700 30px Arial, Helvetica, sans-serif; fill: #142a42; }
+      .subtitle { font: 600 15px Arial, Helvetica, sans-serif; fill: #4a627a; }
+      .section { font: 700 17px Arial, Helvetica, sans-serif; fill: #142a42; }
+      .label { font: 700 14px Arial, Helvetica, sans-serif; fill: #1c3550; }
+      .path { font: 600 13px Arial, Helvetica, sans-serif; fill: #2563eb; }
+      .body { font: 13px Arial, Helvetica, sans-serif; fill: #3d566e; }
+      .file { font: 12px Menlo, Consolas, monospace; fill: #1e4976; }
+      .arrow { stroke: #5d7592; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+      .arrow-dash { stroke: #7c93ab; stroke-width: 2; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrowhead-soft); }
+    </style>
+    <marker id="arrowhead" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto">
+      <path d="M0,0 L11,5.5 L0,11 z" fill="#5d7592"/>
+    </marker>
+    <marker id="arrowhead-soft" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#7c93ab"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1760" height="1280"/>
+
+  <!-- Header -->
+  <text class="title" x="48" y="52">Matching Agent - Platform Architecture</text>
+  <text class="subtitle" x="48" y="82">Existing scraper &amp; resume pipeline + FastAPI bridge + Node matcher + Postgres persistence + optional daily batch</text>
+
+  <!-- Legend -->
+  <rect class="panel-muted" x="1280" y="28" width="432" height="72" rx="12"/>
+  <text class="section" x="1300" y="54">Legend</text>
+  <rect fill="#ecfdf3" stroke="#86cba0" x="1300" y="66" width="18" height="18" rx="4"/>
+  <text class="body" x="1328" y="80">Existing repo behavior</text>
+  <rect fill="#eff6ff" stroke="#93b4f4" x="1488" y="66" width="18" height="18" rx="4"/>
+  <text class="body" x="1516" y="80">New matching integration</text>
+
+  <!-- ROW 1 -->
+  <rect class="panel-green" x="40" y="118" width="1680" height="218"/>
+  <text class="section" x="64" y="152">A. Existing platform (data you already had)</text>
+
+  <rect class="card" x="64" y="174" width="320" height="142"/>
+  <text class="label" x="84" y="202">Job ingestion</text>
+  <text class="body" x="84" y="226">Dice scraper fills listings tables.</text>
+  <text class="file" x="84" y="252">backend/services/scraper/</text>
+  <text class="file" x="84" y="272">backend/services/run.py (pipeline)</text>
+  <text class="body" x="84" y="296">-&gt; PostgreSQL job rows</text>
+
+  <rect class="card" x="416" y="174" width="340" height="142"/>
+  <text class="label" x="436" y="202">Candidates &amp; formatted resume</text>
+  <text class="body" x="436" y="226">Upload -&gt; formatter produces JSON resume.</text>
+  <text class="file" x="436" y="252">backend/services/resume_formatter/</text>
+  <text class="file" x="436" y="272">backend/database.py, Candidate ORM</text>
+  <text class="body" x="436" y="296">formatted_resume_content + status</text>
+
+  <rect class="card" x="794" y="174" width="900" height="142"/>
+  <text class="label" x="814" y="202">PostgreSQL (shared)</text>
+  <text class="body" x="814" y="228">&lt;schema&gt;.active_scraped_data, inactive_scraped_data (job descriptions)</text>
+  <text class="body" x="814" y="252">candidates: profile + formatted_resume_* for matching_integration.py</text>
+  <text class="body" x="814" y="276">candidate_match_* tables: Node persistence when MATCH_PERSISTENCE_ENABLED</text>
+  <text class="file" x="814" y="300">backend/config.py (DB_SCHEMA, CANDIDATE_SCHEMA), DATABASE_URL</text>
+
+  <line class="arrow" x1="384" y1="245" x2="416" y2="245"/>
+  <line class="arrow" x1="756" y1="245" x2="794" y2="245"/>
+
+  <!-- ROW 2 -->
+  <rect class="panel-blue" x="40" y="360" width="1680" height="200"/>
+  <text class="section" x="64" y="394">B. FastAPI layer - bridge into the matcher (Python)</text>
+
+  <rect class="card" x="64" y="412" width="380" height="132"/>
+  <text class="label" x="84" y="438">HTTP routes</text>
+  <text class="path" x="84" y="458">GET /candidates/{id}/matches</text>
+  <text class="path" x="84" y="478">POST /candidates/{id}/matches/run</text>
+  <text class="file" x="84" y="500">backend/app/routers/candidates.py</text>
+  <text class="file" x="84" y="520">backend/app/main.py (router registration)</text>
+
+  <rect class="card" x="472" y="412" width="520" height="132"/>
+  <text class="label" x="492" y="436">matching_integration.py</text>
+  <text class="file" x="492" y="454">backend/services/matching_integration.py</text>
+  <text class="body" x="492" y="476">Candidate snapshot; formatted resume -&gt; plain text</text>
+  <text class="body" x="492" y="494">Union-query jobs from active + inactive scraped tables</text>
+  <text class="body" x="492" y="512">POST JSON to MATCHER_SERVICE_URL (e.g. :5051/match/jobs)</text>
+  <text class="body" x="492" y="530">GET matches reads latest candidate_match_* run</text>
+
+  <rect class="card" x="1024" y="412" width="320" height="132"/>
+  <text class="label" x="1044" y="440">Environment</text>
+  <text class="file" x="1044" y="466">MATCHER_SERVICE_URL</text>
+  <text class="file" x="1044" y="486">MATCH_JOB_LIMIT, MATCH_TOP_K, MATCH_VECTOR_TOP_N</text>
+  <text class="file" x="1044" y="506">MATCH_*_TABLE overrides (optional)</text>
+
+  <rect class="card" x="1376" y="412" width="328" height="132"/>
+  <text class="label" x="1396" y="440">Outbound call</text>
+  <text class="body" x="1396" y="466">httpx.AsyncClient -&gt; Node matcher</text>
+  <text class="body" x="1396" y="488">Returns matcher_response + stored_results</text>
+
+  <line class="arrow" x1="444" y1="478" x2="472" y2="478"/>
+  <line class="arrow" x1="992" y1="478" x2="1024" y2="478"/>
+  <line class="arrow-dash" x1="1344" y1="478" x2="1376" y2="478"/>
+
+  <!-- ROW 3 -->
+  <rect class="panel" x="40" y="584" width="1680" height="328"/>
+  <text class="section" x="64" y="618">C. Matcher agent service (Node, typically PORT 5051)</text>
+
+  <rect class="card" x="64" y="636" width="320" height="260"/>
+  <text class="label" x="84" y="664">HTTP server</text>
+  <text class="body" x="84" y="688">POST /match/jobs, /match/jobs/upload</text>
+  <text class="body" x="84" y="710">GET /health, OpenAPI stub</text>
+  <text class="file" x="84" y="736">src/server.js</text>
+  <text class="body" x="84" y="762">matchJobsForResumeAsync; persist optional</text>
+  <text class="file" x="84" y="786">src/io/extractText.js (upload path)</text>
+  <text class="file" x="84" y="806">src/openapi.js</text>
+
+  <rect class="card" x="416" y="636" width="360" height="260"/>
+  <text class="label" x="436" y="664">matchingAgent.js</text>
+  <text class="body" x="436" y="688">Normalize jobs; resume profile signals</text>
+  <text class="body" x="436" y="710">Queue + concurrency (MATCHER_MAX_CONCURRENCY)</text>
+  <text class="body" x="436" y="732">spawn scripts/vector_rank_jobs.py (stdin JSON)</text>
+  <text class="body" x="436" y="754">Merge retrieval scores + ATS evaluation</text>
+  <text class="file" x="436" y="782">src/agents/matchingAgent.js</text>
+  <text class="file" x="436" y="804">scripts/vector_rank_jobs.py</text>
+  <text class="file" x="436" y="824">VECTOR_DATABASE_URL / pgvector table env</text>
+
+  <rect class="card" x="808" y="636" width="280" height="118"/>
+  <text class="label" x="828" y="664">ATS &amp; JD helpers</text>
+  <text class="file" x="828" y="688">src/agents/atsCore.js</text>
+  <text class="file" x="828" y="708">src/agents/jobPosting.js</text>
+
+  <rect class="card" x="808" y="772" width="280" height="124"/>
+  <text class="label" x="828" y="800">Persistence</text>
+  <text class="body" x="828" y="824">persistMatchRun; tailoring status updates</text>
+  <text class="file" x="828" y="848">src/db/postgres.js</text>
+
+  <rect class="card" x="1128" y="636" width="320" height="118"/>
+  <text class="label" x="1148" y="664">Optional tailoring</text>
+  <text class="body" x="1148" y="688">HTTP POST top matches to tailoring agent</text>
+  <text class="file" x="1148" y="712">src/integrations/tailoringClient.js</text>
+
+  <rect class="card" x="1128" y="772" width="560" height="124"/>
+  <text class="label" x="1148" y="800">Matcher-only workflow detail</text>
+  <text class="body" x="1148" y="824">See docs/matching-agent-architecture.svg for pgvector + scoring pipeline.</text>
+
+  <line class="arrow" x1="384" y1="720" x2="416" y2="720"/>
+  <line class="arrow" x1="776" y1="695" x2="808" y2="695"/>
+  <line class="arrow" x1="776" y1="785" x2="792" y2="785"/>
+  <path class="arrow" d="M 1088 695 L 1110 695 L 1110 734 L 1128 734"/>
+  <path class="arrow" d="M 976 834 L 976 872 L 808 872 L 808 834"/>
+
+  <path class="arrow-dash" d="M 1540 562 L 1540 620 L 224 620 L 224 636"/>
+  <text class="body" x="232" y="612" fill="#2563eb">MATCHER_SERVICE_URL</text>
+
+  <!-- ROW 4 -->
+  <rect class="panel-amber" x="40" y="936" width="820" height="312"/>
+  <text class="section" x="64" y="972">D. Scheduled batch matching</text>
+
+  <rect class="card" x="64" y="992" width="360" height="108"/>
+  <text class="label" x="84" y="1020">Python scheduler entry</text>
+  <text class="file" x="84" y="1044">backend/services/scheduler/service.py</text>
+  <text class="file" x="84" y="1064">backend/cli.py (--service all)</text>
+  <text class="body" x="84" y="1088">Starts matching scheduler thread alongside APScheduler</text>
+
+  <rect class="card" x="448" y="992" width="392" height="108"/>
+  <text class="label" x="468" y="1020">matching_automation.py</text>
+  <text class="body" x="468" y="1044">Daily wall-clock trigger; subprocess node</text>
+  <text class="file" x="468" y="1068">scripts/run-daily-match-batch.js</text>
+
+  <rect class="card" x="64" y="1120" width="776" height="112"/>
+  <text class="label" x="84" y="1148">run-db-match-caller.js</text>
+  <text class="body" x="84" y="1172">Reads resumes + jobs from Postgres; loops; POST matcher; optional tailoring</text>
+  <text class="file" x="84" y="1198">scripts/run-db-match-caller.js, npm run match:daily</text>
+
+  <line class="arrow" x1="424" y1="1046" x2="448" y2="1046"/>
+
+  <rect class="panel-purple" x="892" y="936" width="828" height="312"/>
+  <text class="section" x="916" y="972">E. Quick file index</text>
+
+  <text class="file" x="916" y="1008">backend/services/matching_integration.py - assemble payload + read stored matches</text>
+  <text class="file" x="916" y="1032">backend/services/matching_automation.py - spawn daily batch</text>
+  <text class="file" x="916" y="1056">backend/app/routers/candidates.py - REST surface</text>
+  <text class="file" x="916" y="1080">src/server.js - matcher HTTP API</text>
+  <text class="file" x="916" y="1104">src/agents/matchingAgent.js - orchestration + Python worker</text>
+  <text class="file" x="916" y="1128">scripts/vector_rank_jobs.py - pgvector retrieval ranker</text>
+  <text class="file" x="916" y="1152">src/db/postgres.js - candidate_match_* writes</text>
+  <text class="file" x="916" y="1176">scripts/run-daily-match-batch.js, run-db-match-caller.js - bulk runs</text>
+
+  <text class="subtitle" x="48" y="1268">Greenfield rebuild: matching-agent-implementation-spec.svg | Visual swimlanes: matching-agent-platform-architecture-visual.svg | PDF: Print -&gt; Save as PDF.</text>
+</svg>

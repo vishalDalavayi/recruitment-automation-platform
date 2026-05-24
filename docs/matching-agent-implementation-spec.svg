@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="2950" viewBox="0 0 1880 2950" role="img" aria-labelledby="title desc">
+  <title id="title">Matching Agent - Greenfield Implementation Specification</title>
+  <desc id="desc">Standalone specification for rebuilding the resume-job matching layer on top of the KonfigAI Resume Bot baseline: assumptions, contracts, files, env vars, scheduler hooks, and verification.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f0f4fa; }
+      .frame { fill: #ffffff; stroke: #94a8c4; stroke-width: 2; rx: 14; ry: 14; }
+      .warn { fill: #fff8e6; stroke: #c9a227; stroke-width: 2; rx: 12; ry: 12; }
+      .mono { font: 11px Menlo, Consolas, monospace; fill: #153450; }
+      .mono-sm { font: 10px Menlo, Consolas, monospace; fill: #1a3d5c; }
+      .h1 { font: 700 26px Arial, Helvetica, sans-serif; fill: #0f2336; }
+      .h2 { font: 700 15px Arial, Helvetica, sans-serif; fill: #0f2336; }
+      .p { font: 12px Arial, Helvetica, sans-serif; fill: #2c4056; }
+      .p-bold { font: 700 12px Arial, Helvetica, sans-serif; fill: #1a5080; }
+      .bullet { font: 12px Arial, Helvetica, sans-serif; fill: #2c4056; }
+      .arrow { stroke: #5a6f82; stroke-width: 2; fill: none; marker-end: url(#mh); }
+      .box { fill: #eef6ff; stroke: #6b93d6; stroke-width: 1.5; rx: 8; ry: 8; }
+      .boxg { fill: #eefaf0; stroke: #6bab78; stroke-width: 1.5; rx: 8; ry: 8; }
+    </style>
+    <marker id="mh" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6f82"/></marker>
+  </defs>
+  <rect class="bg" width="1880" height="2950"/>
+
+  <text class="h1" x="44" y="48">Matching Agent: Greenfield Implementation Spec</text>
+  <text class="p" x="44" y="78">Purpose: A developer or AI with zero prior memory can recreate this matching layer on a stock Resume Bot codebase that</text>
+  <text class="p" x="44" y="98">already has job scraping into Postgres and candidate records with formatted resume JSON.</text>
+
+  <rect class="warn" x="44" y="118" width="1790" height="78"/>
+  <text class="p-bold" x="60" y="146">Read this entire SVG before coding. Implement in the phase order below. All paths are relative to repository root.</text>
+  <text class="mono-sm" x="60" y="168">Invariant: FastAPI integration and Node persistence must use the SAME logical match table names (MATCH_*_TABLE env) and DATABASE_URL.</text>
+  <text class="mono-sm" x="60" y="186">Invariant: Python calls the Node service; Node never calls Python for the primary match path (Node spawns vector_rank_jobs.py itself).</text>
+
+  <!-- Phase order -->
+  <rect class="frame" x="44" y="214" width="1790" height="198"/>
+  <text class="h2" x="64" y="244">Phase order (do not skip)</text>
+  <text class="mono-sm" x="64" y="268">1) Node matcher HTTP service + scripts/vector_rank_jobs.py + src/db/postgres.js persistence (test /match/jobs standalone)</text>
+  <text class="mono-sm" x="64" y="288">2) backend/services/matching_integration.py (DB read, payload build, HTTP client, read stored results)</text>
+  <text class="mono-sm" x="64" y="308">3) backend/app/routers/candidates.py GET /candidates/{unique_id}/matches + POST .../matches/run</text>
+  <text class="mono-sm" x="64" y="328">4) backend/services/matching_automation.py + scripts/run-daily-match-batch.js + scripts/run-db-match-caller.js</text>
+  <text class="mono-sm" x="64" y="348">5) Wire start_matching_scheduler() from backend/services/scheduler/service.py and backend/cli.py run_all()</text>
+  <text class="mono-sm" x="64" y="368">6) Optional: src/integrations/tailoringClient.js + TAILORING_URL for post-match tailoring calls</text>
+  <text class="mono-sm" x="64" y="388">Dependencies: backend/requirements.txt includes httpx; repo-root package.json includes pg, pdf-parse, mammoth for matcher/uploads.</text>
+
+  <!-- Baseline -->
+  <rect class="frame" x="44" y="432" width="1790" height="218"/>
+  <text class="h2" x="64" y="462">A. Baseline repository assumptions (must exist before matching work)</text>
+  <text class="bullet" x="64" y="486">- Postgres schemas/tables populated by existing scraper: {DB_SCHEMA}.active_scraped_data UNION ALL inactive_scraped_data</text>
+  <text class="bullet" x="64" y="506">  Columns Python matcher consumes (via SQL * mapping): serial_no, url, title, company, location, salary, posted_date,</text>
+  <text class="bullet" x="64" y="524">  job_type, workplace_type, description, skills, experience_required, keyword, scraped_at</text>
+  <text class="bullet" x="64" y="546">- Candidate storage (SQLAlchemy Candidate in backend/database.py): unique_id, first_name, last_name,</text>
+  <text class="bullet" x="64" y="564">  formatted_resume_content (JSON text), formatted_resume_status (must be &quot;completed&quot; before Python-triggered match)</text>
+  <text class="bullet" x="64" y="584">- FastAPI application under backend/app/ with API-key middleware pattern used by routers</text>
+  <text class="bullet" x="64" y="604">- Legacy backend/database.py DBManager session API still available for integration module queries</text>
+  <text class="bullet" x="64" y="624">- backend/config.py exposes DB_SCHEMA and CANDIDATE_SCHEMA constants used in SQL identifiers</text>
+
+  <!-- Topology diagram -->
+  <rect class="frame" x="44" y="668" width="1790" height="200"/>
+  <text class="h2" x="64" y="698">B. Runtime topology (two processes minimum)</text>
+  <rect class="boxg" x="80" y="718" width="240" height="52"/><text class="mono" x="95" y="750">FastAPI (uvicorn)</text>
+  <rect class="boxg" x="360" y="718" width="260" height="52"/><text class="mono" x="375" y="742">matching_integration.py</text><text class="mono-sm" x="375" y="758">SQL loads jobs + candidate</text>
+  <rect class="box" x="660" y="718" width="280" height="52"/><text class="mono" x="675" y="742">HTTP POST MATCHER_SERVICE_URL</text><text class="mono-sm" x="675" y="758">default :5051/match/jobs</text>
+  <rect class="box" x="980" y="718" width="220" height="52"/><text class="mono" x="995" y="750">src/server.js</text>
+  <rect class="box" x="1230" y="718" width="260" height="52"/><text class="mono" x="1245" y="742">matchingAgent.js</text><text class="mono-sm" x="1245" y="758">+ vector_rank_jobs.py</text>
+  <rect class="boxg" x="1520" y="718" width="290" height="52"/><text class="mono" x="1535" y="742">Postgres</text><text class="mono-sm" x="1535" y="758">scraped jobs + candidate_match_*</text>
+  <line class="arrow" x1="320" y1="744" x2="360" y2="744"/>
+  <line class="arrow" x1="620" y1="744" x2="660" y2="744"/>
+  <line class="arrow" x1="940" y1="744" x2="980" y2="744"/>
+  <line class="arrow" x1="1200" y1="744" x2="1230" y2="744"/>
+  <path class="arrow" d="M 1360 770 L 1360 810 L 1675 810 L 1675 770"/>
+  <text class="mono-sm" x="80" y="808">matching_integration GET reads latest candidate_match_runs/results joined to candidate_match_jobs (same DATABASE_URL).</text>
+  <text class="mono-sm" x="80" y="828">Scheduled batch: matching_automation.py spawns node scripts/run-daily-match-batch.js which uses run-db-match-caller.js (same matcher URL).</text>
+
+  <!-- HTTP contract -->
+  <rect class="frame" x="44" y="890" width="1790" height="340"/>
+  <text class="h2" x="64" y="920">C. HTTP contract - Node matcher POST /match/jobs</text>
+  <text class="p" x="64" y="944">Listen on PORT (default 5051). Accept JSON. Required: jobs = non-empty array. Required: resumeText string OR resumeFile {filename, contentBase64}.</text>
+  <text class="p-bold" x="64" y="968">Python backend sends (camelCase - mirrors matching_integration payload):</text>
+  <text class="mono-sm" x="64" y="990">{ resumeId, candidateName, resumeVersion, resumeText, jobs[], topK, vectorTopN, persist }</text>
+  <text class="p-bold" x="64" y="1016">Each job object from Python mapper MUST include stable string id (e.g. source_table:serial_no), plus fields Node maps to descriptions:</text>
+  <text class="mono-sm" x="64" y="1038">id, source_job_ref, source_table, title, company_name, location, url, job_type, salary, publication_date, description_text</text>
+  <text class="p-bold" x="64" y="1064">matchJobsForResumeAsync flow (matchingAgent.js): normalize jobs -&gt; spawn Python scripts/vector_rank_jobs.py with stdin JSON</text>
+  <text class="p" x="64" y="1086">(resume_text, jobs[], top_k, vector_top_n, database_url, pgvector_table, embedding_model) -&gt; retrieve top-N -&gt; merge ATS evaluation</text>
+  <text class="p" x="64" y="1108">If persist !== false and MATCH_PERSISTENCE_ENABLED: persistMatchRun() in src/db/postgres.js writes normalized resume snapshot, jobs snapshot,</text>
+  <text class="p" x="64" y="1128">match_run row, ranked candidate_match_results rows. Response echoes matcher scores plus persistence block.</text>
+  <text class="p-bold" x="64" y="1154">Also expose POST /match/jobs/upload (multipart) and GET /health listing endpoints - see src/server.js.</text>
+
+  <!-- Python integration behavior -->
+  <rect class="frame" x="44" y="1252" width="1790" height="260"/>
+  <text class="h2" x="64" y="1282">D. backend/services/matching_integration.py responsibilities</text>
+  <text class="bullet" x="64" y="1306">- Load Candidate by unique_id; reject unless formatted_resume_status == completed</text>
+  <text class="bullet" x="64" y="1326">- Render formatted_resume_content JSON into plain resume text (structured sections: summary, skills, experience, etc.)</text>
+  <text class="bullet" x="64" y="1346">- Fetch latest N scraped jobs via UNION ALL active/inactive ORDER BY scraped_at DESC LIMIT job_limit</text>
+  <text class="bullet" x="64" y="1366">- Map rows into matcher job objects with composite ids including source_table prefix</text>
+  <text class="bullet" x="64" y="1386">- POST httpx.AsyncClient to MATCHER_SERVICE_URL with clamped limits (MATCH_JOB_LIMIT max 500, MATCH_TOP_K max 50)</text>
+  <text class="bullet" x="64" y="1406">- get_candidate_matches(unique_id): SELECT latest candidate_match_runs by source_resume_ref then join results to candidate_match_jobs</text>
+  <text class="bullet" x="64" y="1426">- Table names from env MATCH_RESUMES_TABLE, MATCH_JOBS_TABLE, MATCH_RUNS_TABLE, MATCH_RESULTS_TABLE (validated identifiers)</text>
+  <text class="bullet" x="64" y="1446">- Defaults align with Node getPersistenceTableNames(): candidate_details.candidate_match_* unless overridden</text>
+
+  <!-- FastAPI routes -->
+  <rect class="frame" x="44" y="1532" width="1790" height="120"/>
+  <text class="h2" x="64" y="1562">E. FastAPI routes (backend/app/routers/candidates.py)</text>
+  <text class="mono-sm" x="64" y="1586">GET  /candidates/{unique_id}/matches?limit=N   -&gt; wraps get_candidate_matches(...)</text>
+  <text class="mono-sm" x="64" y="1608">POST /candidates/{unique_id}/matches/run        -&gt; JSON body optional keys job_limit, top_k, vector_top_n, persist</text>
+  <text class="mono-sm" x="64" y="1630">Register router in backend/app/main.py. Protect with same API-key Depends pattern as other routes.</text>
+
+  <!-- File manifest -->
+  <rect class="frame" x="44" y="1674" width="1790" height="560"/>
+  <text class="h2" x="64" y="1704">F. File manifest (create or modify)</text>
+  <text class="p-bold" x="64" y="1728">Node / scripts (repository root)</text>
+  <text class="mono-sm" x="80" y="1750">src/server.js                          HTTP server, routes, wires persistence + tailoring</text>
+  <text class="mono-sm" x="80" y="1770">src/agents/matchingAgent.js            Rank pipeline, spawn vector_rank_jobs.py, ATS merge</text>
+  <text class="mono-sm" x="80" y="1790">src/agents/atsCore.js                   Requirement extraction + scoring helpers</text>
+  <text class="mono-sm" x="80" y="1810">src/agents/jobPosting.js                Job posting normalization</text>
+  <text class="mono-sm" x="80" y="1830">src/db/postgres.js                      Pool, DDL optional auto-setup, persistMatchRun, tailoring status columns</text>
+  <text class="mono-sm" x="80" y="1850">src/io/extractText.js                   PDF/DOCX/text extraction for uploads</text>
+  <text class="mono-sm" x="80" y="1870">src/integrations/tailoringClient.js    Optional downstream tailoring POST</text>
+  <text class="mono-sm" x="80" y="1890">src/openapi.js                          OpenAPI JSON served by matcher</text>
+  <text class="mono-sm" x="80" y="1910">src/index.js                            Barrel exports for programmatic testing</text>
+  <text class="mono-sm" x="80" y="1930">scripts/vector_rank_jobs.py             pgvector retrieval subprocess</text>
+  <text class="mono-sm" x="80" y="1950">scripts/run-db-match-caller.js          PG-backed batch caller utilities</text>
+  <text class="mono-sm" x="80" y="1970">scripts/run-daily-match-batch.js        Scheduled batch entrypoint</text>
+  <text class="mono-sm" x="80" y="1990">package.json                            npm run serve | match:db | match:daily</text>
+  <text class="p-bold" x="64" y="2020">Python (backend/)</text>
+  <text class="mono-sm" x="80" y="2042">backend/services/matching_integration.py</text>
+  <text class="mono-sm" x="80" y="2062">backend/services/matching_automation.py   subprocess node scripts/run-daily-match-batch.js + schedule thread</text>
+  <text class="mono-sm" x="80" y="2082">backend/app/routers/candidates.py        match endpoints import run_candidate_matching, get_candidate_matches</text>
+  <text class="mono-sm" x="80" y="2102">backend/services/scheduler/service.py   call start_matching_scheduler() in lifespan after scraper cron jobs</text>
+  <text class="mono-sm" x="80" y="2122">backend/cli.py                           run_all(): start_matching_scheduler() inside background scheduler thread</text>
+
+  <!-- Env -->
+  <rect class="frame" x="44" y="2256" width="1790" height="380"/>
+  <text class="h2" x="64" y="2286">G. Environment variables (minimum mental model)</text>
+  <text class="p-bold" x="64" y="2310">Python</text>
+  <text class="mono-sm" x="80" y="2332">MATCHER_SERVICE_URL=http://127.0.0.1:5051/match/jobs</text>
+  <text class="mono-sm" x="80" y="2352">MATCH_JOB_LIMIT, MATCH_TOP_K, MATCH_VECTOR_TOP_N</text>
+  <text class="mono-sm" x="80" y="2372">MATCH_*_TABLE overrides if schemas differ</text>
+  <text class="mono-sm" x="80" y="2392">DATABASE_URL / DB_SCHEMA / path imports from backend config</text>
+  <text class="p-bold" x="64" y="2418">Node matcher</text>
+  <text class="mono-sm" x="80" y="2440">PORT=5051, HOST, DATABASE_URL (persistence + pgvector)</text>
+  <text class="mono-sm" x="80" y="2460">VECTOR_DATABASE_URL (optional override), PGVECTOR_TABLE, EMBEDDING_MODEL</text>
+  <text class="mono-sm" x="80" y="2480">MATCH_PERSISTENCE_ENABLED, MATCH_PERSISTENCE_AUTO_SETUP, MATCH_*_TABLE names matching Python</text>
+  <text class="mono-sm" x="80" y="2500">MATCHER_PYTHON_BIN, MATCHER_CHILD_TIMEOUT_MS, MATCHER_MAX_CONCURRENCY</text>
+  <text class="mono-sm" x="80" y="2520">TAILORING_URL, TAILOR_TOP_N, TAILOR_MIN_SCORE (optional batch + runtime tailoring)</text>
+  <text class="mono-sm" x="80" y="2540">MATCHING_SCHEDULE_ENABLED, MATCHING_SCHEDULE_TIME, MATCHING_BATCH_TIMEOUT_SECONDS, NODE_BIN (Python automation)</text>
+
+  <!-- Automation detail -->
+  <rect class="frame" x="44" y="2658" width="1790" height="138"/>
+  <text class="h2" x="64" y="2688">H. Scheduler automation semantics</text>
+  <text class="p" x="64" y="2712">matching_automation.trigger_daily_matching runs: NODE_BIN node scripts/run-daily-match-batch.js from repo root with inherited env.</text>
+  <text class="p" x="64" y="2734">run-daily-match-batch dedupes per calendar day per resume unless --force; calls matcher HTTP per resume; optional tailoring hooks.</text>
+  <text class="p" x="64" y="2756">start_matching_scheduler(): daemon thread polls wall clock vs MATCHING_SCHEDULE_TIME once per day when enabled.</text>
+
+  <!-- Verification -->
+  <rect class="frame" x="44" y="2818" width="1790" height="82"/>
+  <text class="h2" x="64" y="2848">I. Acceptance checks</text>
+  <text class="bullet" x="64" y="2872">- GET Node /health reports persistenceConfigured consistent with DATABASE_URL</text>
+  <text class="bullet" x="64" y="2892">- POST /match/jobs with fixture resume + jobs returns ranked jobs; persist=true creates readable rows from FastAPI GET .../matches</text>
+  <text class="mono-sm" x="44" y="2910">Visual phase diagram (same repo): matching-agent-implementation-spec-visual.svg</text>
+  <text class="mono-sm" x="44" y="2932">Behavior + SHA256 manifest + fixtures: matching-agent-behavioral-appendix.md, matching-agent-canonical-files.json, docs/fixtures/matching/</text>
+</svg>

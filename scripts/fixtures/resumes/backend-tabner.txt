@@ -1,0 +1,17 @@
+SUMMARY:
+Backend engineer with 6 years building Node.js REST APIs on AWS for SaaS products.
+
+ACADEMICS:
+Bachelor of Technology in Computer Science
+
+TECHNICAL SKILLS:
+JavaScript, TypeScript, Node.js, Express, AWS, Lambda, DynamoDB, REST APIs, Docker, PostgreSQL
+
+PROFESSIONAL EXPERIENCE:
+Built backend services, authentication APIs, and event-driven integrations for cloud applications.
+
+RESPONSIBILITIES:
+Designed REST APIs, deployed services to AWS, improved CI/CD pipelines, and supported production systems.
+
+ENVIRONMENT:
+Node.js, AWS, Docker, PostgreSQL, GitHub Actions
