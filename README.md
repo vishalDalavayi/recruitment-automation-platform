@@ -1,4 +1,4 @@
-# KonfigAI Job Digger — Production Scraper & Dashboard
+# Job Digger — Production Scraper & Dashboard
 
 A production-grade job scraping and talent operations platform with a layered FastAPI backend, React dashboard, and AI-assisted resume workflows. Built for fast startup, high concurrency, and independent service scaling.
 
